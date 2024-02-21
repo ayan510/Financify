@@ -225,7 +225,7 @@ const History = () => {
             ))}
           </Table.Body>
         </Table>
-        <hr></hr>
+        {/* <hr></hr> */}
       </div>
       {filterCriteria && (
         <p>Filtered by: {filterCriteria}</p>
