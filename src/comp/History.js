@@ -133,14 +133,15 @@ const History = () => {
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: 'whitesmoke' }}>
+
       <Segment>
         <Button as='div' labelPosition='right'>
-          <Button basic color='blue'>
+          <Button color='teal'>
             <Icon name='fork' />
             Income:
           </Button>
-          <Label as='a' basic color='blue' pointing='left'>
+          <Label as='a' basic color='teal' pointing='left'>
             ${totalIncome}
           </Label>
         </Button>
@@ -188,7 +189,7 @@ const History = () => {
         )}
       </div>
       <div style={{ marginTop: '20px' }}>
-        <Table celled className='historytable' textAlign='center' style={{ margin: '0 auto', border: '1px solid black' }}>
+        <Table celled className='ui celled unstackable table' textAlign='center' style={{ margin: '0 auto', border: '1px solid black' }}>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Type</Table.HeaderCell>

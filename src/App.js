@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { auth } from './comp/firebase';
+import './App.css'
 import 'semantic-ui-css/semantic.min.css';
 import Home from './comp/Home';
 import Transactions from './comp/Transactions';
@@ -83,6 +84,8 @@ export default function App() {
             {params.page === 'Home' && <Home />}
             {params.page === 'Transactions' && <Transactions />}
             {params.page === 'History' && <History />}
+            <hr></hr>
+            <hr></hr>
           </>
         )}
       </MyContext.Provider>

@@ -7,6 +7,10 @@
   pointer-events: none;
 }
 
+.segmentone{
+  background-color: aqua;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -17,7 +21,9 @@
   border: 1px solid black;
   font-family: 'Times New Roman';
 }
-
+body{
+  background-color: #61dafb;
+}
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

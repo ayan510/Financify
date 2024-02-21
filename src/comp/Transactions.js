@@ -101,16 +101,16 @@ const TransactionsPage = () => {
       </Form>
       <Segment>
         <Button as='div' labelPosition='right'>
-          <Button basic color='blue'>
+          <Button basic color='teal'>
             <Icon name='fork' />
             Income:
           </Button>
-          <Label as='a' basic color='blue' pointing='left'>
+          <Label as='a' basic color='teal' pointing='left'>
             ${totalIncome}
           </Label>
         </Button>
         <Button as='div' labelPosition='right'>
-          <Button color='red'>
+          <Button basic color='red'>
             <Icon name='cart' />
             Expense:
           </Button>
@@ -120,7 +120,7 @@ const TransactionsPage = () => {
         </Button>
       </Segment>
       <Header as='h2' style={{ marginTop: '40px' }}>(Last Five Transactions)</Header>
-      <Table className='custome-table' celled textAlign='center' style={{ margin: '0 auto', border: '1px solid black' }}>
+      <Table className='ui celled unstackable table' celled textAlign='center' style={{ margin: '0 auto', border: '1px solid black' }}>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Type</Table.HeaderCell>
