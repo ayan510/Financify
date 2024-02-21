@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ref, onValue, update } from 'firebase/database';
+import { ref, onValue, update, remove } from 'firebase/database';
 import 'semantic-ui-css/semantic.min.css';
 import { db } from './firebase';
 import { Button, Table, Input, Segment, Icon, Label, Modal, Form, Dropdown } from 'semantic-ui-react';
@@ -18,6 +18,7 @@ const History = () => {
   const [editTransactionAmount, setEditTransactionAmount] = useState('');
   const [editTransactionCategory, setEditTransactionCategory] = useState('');
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [transactionToDeleteId, setTransactionToDeleteId] = useState('');
 
   const options = [
     { key: 'income', text: 'Income', value: 'income' },
@@ -96,6 +97,7 @@ const History = () => {
       filterTransactions();
     }
   }, [filterValue]);
+
   const updateTransaction = (transactionId, updatedTransaction) => {
     const transactionRef = ref(db, `transactions/${transactionId}`);
     update(transactionRef, updatedTransaction)
@@ -130,7 +132,17 @@ const History = () => {
   };
 
   const handleDeleteTransaction = (transactionId) => {
+    const transactionRef = ref(db, `transactions/${transactionId}`);
+    remove(transactionRef)
+      .then(() => {
+        console.log('Transaction deleted successfully.');
+        setDeleteConfirmationOpen(false);
+      })
+      .catch((error) => {
+        console.error('Error deleting transaction:', error);
+      });
   };
+
 
   return (
     <div style={{ backgroundColor: 'whitesmoke' }}>
@@ -206,7 +218,8 @@ const History = () => {
                 <Table.Cell>{transaction.category}</Table.Cell>
                 <Table.Cell>
                   <Button circular icon='edit' color='green' onClick={() => handleEditTransaction(transaction.id, transaction.type, transaction.amount, transaction.category)} />
-                  <Button circular icon='trash' color='red' onClick={() => setDeleteConfirmationOpen(true)} />
+                  <Button circular icon='trash' color='red' onClick={() => { setTransactionToDeleteId(transaction.id); setDeleteConfirmationOpen(true); }} />
+
                 </Table.Cell>
               </Table.Row>
             ))}
@@ -261,7 +274,7 @@ const History = () => {
           <p>Are you sure you want to delete this transaction?</p>
         </Modal.Content>
         <Modal.Actions>
-          <Button color='red' onClick={() => handleDeleteTransaction(editTransactionId)}>Yes</Button>
+          <Button color='red' onClick={() => { handleDeleteTransaction(transactionToDeleteId); }}>Yes</Button>
           <Button onClick={() => setDeleteConfirmationOpen(false)}>No</Button>
         </Modal.Actions>
       </Modal>

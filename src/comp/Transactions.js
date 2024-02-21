@@ -24,7 +24,7 @@ const TransactionsPage = () => {
           ...value
         }));
 
-        // Calculate total income and expense
+
         const incomeAmounts = transactionsArray.filter(transaction => transaction.type === 'income').map(transaction => transaction.amount);
         const expenseAmounts = transactionsArray.filter(transaction => transaction.type === 'expense').map(transaction => transaction.amount);
         const totalIncomeAmount = incomeAmounts.reduce((acc, curr) => acc + curr, 0);
