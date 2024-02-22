@@ -19,6 +19,8 @@ const History = () => {
   const [editTransactionCategory, setEditTransactionCategory] = useState('');
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [transactionToDeleteId, setTransactionToDeleteId] = useState('');
+  const [editTransactionOriginalData, setEditTransactionOriginalData] = useState(null);
+  const [undoTransaction, setUndoTransaction] = useState(null);
 
   const options = [
     { key: 'income', text: 'Income', value: 'income' },
@@ -98,11 +100,13 @@ const History = () => {
     }
   }, [filterValue]);
 
-  const updateTransaction = (transactionId, updatedTransaction) => {
+  const updateTransaction = (transactionId, updatedTransaction, originalTransaction) => {
     const transactionRef = ref(db, `transactions/${transactionId}`);
     update(transactionRef, updatedTransaction)
       .then(() => {
         console.log('Transaction updated successfully.');
+        setUndoTransaction({ type: 'edit', id: transactionId, originalTransaction });
+        setTimeout(() => setUndoTransaction(null), 5000);
       })
       .catch((error) => {
         console.error('Error updating transaction:', error);
@@ -110,10 +114,12 @@ const History = () => {
   };
 
   const handleEditTransaction = (transactionId, type, amount, category) => {
+    const originalTransaction = transactions.find(transaction => transaction.id === transactionId);
     setEditTransactionId(transactionId);
     setEditTransactionType(type);
     setEditTransactionAmount(amount);
     setEditTransactionCategory(category);
+    setEditTransactionOriginalData(originalTransaction);
   };
 
   const handleEditSubmit = () => {
@@ -124,11 +130,12 @@ const History = () => {
       category: editTransactionCategory
     };
 
-    updateTransaction(editTransactionId, updatedTransaction);
+    updateTransaction(editTransactionId, updatedTransaction, editTransactionOriginalData);
     setEditTransactionId('');
     setEditTransactionType('');
     setEditTransactionAmount('');
     setEditTransactionCategory('');
+    setEditTransactionOriginalData(null);
   };
 
   const handleDeleteTransaction = (transactionId) => {
@@ -136,6 +143,8 @@ const History = () => {
     remove(transactionRef)
       .then(() => {
         console.log('Transaction deleted successfully.');
+        setUndoTransaction({ type: 'delete', id: transactionId, originalTransaction: transactions.find(transaction => transaction.id === transactionId) });
+        setTimeout(() => setUndoTransaction(null), 5000);
         setDeleteConfirmationOpen(false);
       })
       .catch((error) => {
@@ -143,10 +152,34 @@ const History = () => {
       });
   };
 
+  const handleUndo = () => {
+    if (undoTransaction) {
+      const { type, id, originalTransaction } = undoTransaction;
+      if (type === 'delete') {
+        const transactionRef = ref(db, `transactions/${id}`);
+        update(transactionRef, originalTransaction)
+          .then(() => {
+
+            alert('Transaction restored successfully')
+
+            setUndoTransaction(null);
+          })
+          .catch((error) => {
+            console.error('Error restoring transaction:', error);
+          });
+      } else if (type === 'edit') {
+        updateTransaction(id, originalTransaction, transactions.find(transaction => transaction.id === id));
+        setEditTransactionId('');
+        setEditTransactionType('');
+        setEditTransactionAmount('');
+        setEditTransactionCategory('');
+        setEditTransactionOriginalData(null);
+      }
+    }
+  };
 
   return (
     <div style={{ backgroundColor: 'whitesmoke' }}>
-
       <Segment>
         <Button as='div' labelPosition='right'>
           <Button color='teal'>
@@ -168,7 +201,8 @@ const History = () => {
         </Button>
       </Segment>
 
-      <Button color='teal' onClick={handleToggleFilters} primary><Icon color='white' name='zoom' />
+      <Button color='teal' onClick={handleToggleFilters} primary>
+        <Icon color='white' name='zoom' />
         {showFilters ? 'Hide Filters' : 'Show Filters'}
       </Button>
       <div style={{ marginTop: '20px' }}>
@@ -219,13 +253,11 @@ const History = () => {
                 <Table.Cell>
                   <Button circular icon='edit' color='green' onClick={() => handleEditTransaction(transaction.id, transaction.type, transaction.amount, transaction.category)} />
                   <Button circular icon='trash' color='red' onClick={() => { setTransactionToDeleteId(transaction.id); setDeleteConfirmationOpen(true); }} />
-
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table>
-        {/* <hr></hr> */}
       </div>
       {filterCriteria && (
         <p>Filtered by: {filterCriteria}</p>
@@ -278,6 +310,12 @@ const History = () => {
           <Button onClick={() => setDeleteConfirmationOpen(false)}>No</Button>
         </Modal.Actions>
       </Modal>
+      {undoTransaction && (
+        <div style={{ position: 'fixed', bottom: '20px', right: '20px', backgroundColor: 'whitesmoke', padding: '10px', borderRadius: '5px', }}>
+          <Button basic color='red'>Undo {undoTransaction.type === 'delete' ? 'delete' : 'edit'}: {undoTransaction.originalTransaction.type} - {undoTransaction.originalTransaction.amount} - {undoTransaction.originalTransaction.category}</Button>
+          <Button className='undobtn' color='black' onClick={handleUndo}><Icon name='history' />Undo</Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -23,7 +23,7 @@ export default function App() {
 
   const [params, setParams] = useState(paramsObject);
   const [user, setUser] = useState(null);
-  const [logoutConfirmationOpen, setLogoutConfirmationOpen] = useState(false); // State to manage the logout confirmation modal
+  const [logoutConfirmationOpen, setLogoutConfirmationOpen] = useState(false);
   const provider = new GoogleAuthProvider();
 
   useEffect(() => {

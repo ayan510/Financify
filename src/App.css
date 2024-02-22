@@ -7,9 +7,7 @@
   pointer-events: none;
 }
 
-.segmentone{
-  background-color: aqua;
-}
+
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
@@ -22,7 +20,7 @@
   font-family: 'Times New Roman';
 }
 body{
-  background-color: #61dafb;
+  background-color: #525556;
 }
 .App-header {
   background-color: #282c34;

@@ -43,8 +43,18 @@ const TransactionsPage = () => {
   }, []);
 
   const handleTypeChange = (e, { value }) => setType(value);
-  const handleAmountChange = (e) => setAmount(e.target.value);
-  const handleCategoryChange = (e) => setCategory(e.target.value);
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 10) {
+      setAmount(value);
+    }
+  };
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 20) {
+      setCategory(value);
+    }
+  };
 
   const handleSubmit = () => {
     if (!type || !amount || !category) {
@@ -66,7 +76,7 @@ const TransactionsPage = () => {
 
   return (
     <div style={{ margin: '20px' }}>
-      <Header as='h2'>Add Transaction</Header>
+      <Header as='h2'>ADD TRANSACTION</Header>
       <Form onSubmit={handleSubmit}>
         <Form.Group widths='equal'>
           <Form.Radio
@@ -89,6 +99,7 @@ const TransactionsPage = () => {
           placeholder='Amount'
           value={amount}
           onChange={handleAmountChange}
+          style={{ maxWidth: '300px' }}
         />
         <Form.Field
           control={Input}
@@ -96,6 +107,7 @@ const TransactionsPage = () => {
           placeholder='Category'
           value={category}
           onChange={handleCategoryChange}
+          style={{ maxWidth: '300px' }}
         />
         <Button color='green' type='submit' primary>Add Transaction</Button>
       </Form>
