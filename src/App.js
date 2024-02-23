@@ -24,8 +24,8 @@ export default function App() {
   const [params, setParams] = useState(paramsObject);
   const [user, setUser] = useState(null);
   const [logoutConfirmationOpen, setLogoutConfirmationOpen] = useState(false);
-  const [sidebarVisible, setSidebarVisible] = useState(false); // State to control sidebar visibility
-  const [userModalOpen, setUserModalOpen] = useState(false); // State to control user modal visibility
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [userModalOpen, setUserModalOpen] = useState(false);
   const provider = new GoogleAuthProvider();
 
   useEffect(() => {
@@ -56,8 +56,8 @@ export default function App() {
     signOut(auth)
       .then(() => {
         setUser(null);
-        setLogoutConfirmationOpen(false); // Close logout confirmation modal on logout
-        setSidebarVisible(false); // Close sidebar on logout
+        setLogoutConfirmationOpen(false);
+        setSidebarVisible(false);
       })
       .catch((error) => {
         console.log(error.message);
@@ -68,7 +68,6 @@ export default function App() {
     <div style={{ marginTop: '20px', marginLeft: '20px' }}>
       <MyContext.Provider value={{ user, setUser, params, setParams }}>
         <Sidebar.Pushable as='div'>
-          {/* Sidebar */}
           <Sidebar
             as={Menu}
             animation='overlay'
@@ -76,7 +75,7 @@ export default function App() {
             vertical
             visible={sidebarVisible}
             width='thin'
-            style={{ backgroundColor: '#f5f5f5' }} // Sidebar background color
+            style={{ backgroundColor: '#f5f5f5' }}
           >
             {user && (
               <Menu.Item onClick={() => setUserModalOpen(true)}>
@@ -105,21 +104,16 @@ export default function App() {
           </Sidebar>
 
           <Sidebar.Pusher>
-            {/* Main content */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              {/* Sidebar toggle button */}
               <Button icon onClick={() => setSidebarVisible(true)}>
                 <Icon name='bars' />
               </Button>
-              {/* Old logout button */}
               {user && (
                 <Button className='logout' color='red' onClick={() => setLogoutConfirmationOpen(true)}><Icon name='sign-out' />
                   Logout
                 </Button>
               )}
             </div>
-
-            {/* Page content */}
             {user ? (
               <>
                 <>
