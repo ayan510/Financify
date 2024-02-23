@@ -6,7 +6,7 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowImage(false);
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
