@@ -6,7 +6,7 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowImage(false);
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -15,9 +15,9 @@ export default function Home() {
     <div style={{ marginTop: '100px' }}>
       {showImage && (
         <img
-          src="logo192.png"
-          alt="Loading"
-          style={{ display: 'block', margin: '0 auto' }}
+          src="logo512.png"
+          alt=" Loading"
+          style={{ display: 'block', width: '200px', margin: '0 auto' }}
         />
       )}
       {!showImage && (

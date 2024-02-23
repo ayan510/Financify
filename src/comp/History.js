@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ref, onValue, update, remove } from 'firebase/database';
 import 'semantic-ui-css/semantic.min.css';
 import { db } from './firebase';
-import { Button, Table, Input, Segment, Icon, Label, Modal, Form, Dropdown } from 'semantic-ui-react';
+import { Button, Table, Input, Segment, Icon, Label, Modal, Form, Dropdown, Message } from 'semantic-ui-react';
+import { MyContext } from '../App';
 
 const History = () => {
+  const { user } = useContext(MyContext)
   const [transactions, setTransactions] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
@@ -30,7 +32,7 @@ const History = () => {
   const handleTypeChange = (e, { value }) => setEditTransactionType(value);
 
   useEffect(() => {
-    const transactionsRef = ref(db, 'transactions');
+    const transactionsRef = ref(db, 'transactions/' + user.uid);
     onValue(transactionsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -101,7 +103,7 @@ const History = () => {
   }, [filterValue]);
 
   const updateTransaction = (transactionId, updatedTransaction, originalTransaction) => {
-    const transactionRef = ref(db, `transactions/${transactionId}`);
+    const transactionRef = ref(db, `transactions/${user.uid}/${transactionId}`);
     update(transactionRef, updatedTransaction)
       .then(() => {
         console.log('Transaction updated successfully.');
@@ -139,7 +141,7 @@ const History = () => {
   };
 
   const handleDeleteTransaction = (transactionId) => {
-    const transactionRef = ref(db, `transactions/${transactionId}`);
+    const transactionRef = ref(db, `transactions/${user.uid}/${transactionId}`);
     remove(transactionRef)
       .then(() => {
         console.log('Transaction deleted successfully.');
@@ -156,12 +158,10 @@ const History = () => {
     if (undoTransaction) {
       const { type, id, originalTransaction } = undoTransaction;
       if (type === 'delete') {
-        const transactionRef = ref(db, `transactions/${id}`);
+        const transactionRef = ref(db, `transactions/${user.uid}/${id}`);
         update(transactionRef, originalTransaction)
           .then(() => {
-
             alert('Transaction restored successfully')
-
             setUndoTransaction(null);
           })
           .catch((error) => {
@@ -179,88 +179,97 @@ const History = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'whitesmoke' }}>
-      <Segment>
-        <Button as='div' labelPosition='right'>
-          <Button color='teal'>
-            <Icon name='fork' />
-            Income:
-          </Button>
-          <Label as='a' basic color='teal' pointing='left'>
-            ${totalIncome}
-          </Label>
-        </Button>
-        <Button as='div' labelPosition='right'>
-          <Button color='red'>
-            <Icon name='cart' />
-            Expense:
-          </Button>
-          <Label as='a' basic color='red' pointing='left'>
-            ${totalExpense}
-          </Label>
-        </Button>
-      </Segment>
+    <div style={{ backgroundColor: 'whitesmoke', padding: '20px' }}>
+      {transactions.length === 0 ? (
+        <Message>
+          <Message.Header>Welcome to Financify App!</Message.Header>
+          <p>There's currently no transaction data available. Start tracking your transactions now!</p>
+        </Message>
+      ) : (
+        <>
+          <Segment>
+            <Button as='div' labelPosition='right'>
+              <Button color='teal'>
+                <Icon name='fork' />
+                Income:
+              </Button>
+              <Label as='a' basic color='teal' pointing='left'>
+                ${totalIncome}
+              </Label>
+            </Button>
+            <Button as='div' labelPosition='right'>
+              <Button color='red'>
+                <Icon name='cart' />
+                Expense:
+              </Button>
+              <Label as='a' basic color='red' pointing='left'>
+                ${totalExpense}
+              </Label>
+            </Button>
+          </Segment>
 
-      <Button color='teal' onClick={handleToggleFilters} primary>
-        <Icon color='white' name='zoom' />
-        {showFilters ? 'Hide Filters' : 'Show Filters'}
-      </Button>
-      <div style={{ marginTop: '20px' }}>
-        {showFilters && (
-          <div>
-            {filterCriteria === 'Amount' && (
-              <Input
-                placeholder="Enter amount"
-                value={filterValue}
-                onChange={handleInputChange}
-              />
+          <Button color='teal' onClick={handleToggleFilters} primary>
+            <Icon color='white' name='zoom' />
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </Button>
+          <div style={{ marginTop: '20px' }}>
+            {showFilters && (
+              <div>
+                {filterCriteria === 'Amount' && (
+                  <Input
+                    placeholder="Enter amount"
+                    value={filterValue}
+                    onChange={handleInputChange}
+                  />
+                )}
+                <Button color='blue' onClick={handleFilterByAmount}>Filter by Amount</Button>
+                {filterCriteria === 'Category' && (
+                  <Input
+                    placeholder="Enter category"
+                    value={filterValue}
+                    onChange={handleInputChange}
+                    list="categories"
+                  />
+                )}
+                <datalist id="categories">
+                  {suggestions.map((category, index) => (
+                    <option key={index} value={category} />
+                  ))}
+                </datalist>
+                <Button color='blue' onClick={handleFilterByCategory}>Filter by Category</Button>
+                <Button color='red' onClick={handleClearFilters}>Clear Filters</Button>
+              </div>
             )}
-            <Button color='blue' onClick={handleFilterByAmount}>Filter by Amount</Button>
-            {filterCriteria === 'Category' && (
-              <Input
-                placeholder="Enter category"
-                value={filterValue}
-                onChange={handleInputChange}
-                list="categories"
-              />
-            )}
-            <datalist id="categories">
-              {suggestions.map((category, index) => (
-                <option key={index} value={category} />
-              ))}
-            </datalist>
-            <Button color='blue' onClick={handleFilterByCategory}>Filter by Category</Button>
-            <Button color='red' onClick={handleClearFilters}>Clear Filters</Button>
           </div>
-        )}
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <Table celled className='ui celled unstackable table' textAlign='center' style={{ margin: '0 auto', border: '1px solid black' }}>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Type</Table.HeaderCell>
-              <Table.HeaderCell>Amount</Table.HeaderCell>
-              <Table.HeaderCell>Category</Table.HeaderCell>
-              <Table.HeaderCell>Actions</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {filteredTransactions.map(transaction => (
-              <Table.Row key={transaction.id}>
-                <Table.Cell>{transaction.type}</Table.Cell>
-                <Table.Cell>{transaction.amount}</Table.Cell>
-                <Table.Cell>{transaction.category}</Table.Cell>
-                <Table.Cell>
-                  <Button circular icon='edit' color='green' onClick={() => handleEditTransaction(transaction.id, transaction.type, transaction.amount, transaction.category)} />
-                  <Button circular icon='trash' color='red' onClick={() => { setTransactionToDeleteId(transaction.id); setDeleteConfirmationOpen(true); }} />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </div>
-      {filterCriteria && (
-        <p>Filtered by: {filterCriteria}</p>
+          <div style={{ marginTop: '20px' }}>
+            <Table celled className='ui celled unstackable table' textAlign='center' style={{ margin: '0 auto', border: '1px solid black' }}>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell>Type</Table.HeaderCell>
+                  <Table.HeaderCell>Amount</Table.HeaderCell>
+                  <Table.HeaderCell>Category</Table.HeaderCell>
+                  <Table.HeaderCell>Actions</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {filteredTransactions.map(transaction => (
+                  <Table.Row key={transaction.id}>
+                    <Table.Cell>{transaction.type}</Table.Cell>
+                    <Table.Cell>{transaction.amount}</Table.Cell>
+                    <Table.Cell>{transaction.category}</Table.Cell>
+                    <Table.Cell>
+                      <Button circular icon='edit' color='green' onClick={() => handleEditTransaction(transaction.id, transaction.type, transaction.amount, transaction.category)} />
+                      <Button circular icon='trash' color='red' onClick={() => { setTransactionToDeleteId(transaction.id); setDeleteConfirmationOpen(true); }} />
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </div>
+          {filterCriteria && (
+            <p>Filtered by: {filterCriteria}</p>
+          )}
+        </>
       )}
       <Modal
         open={editTransactionId !== ''}
