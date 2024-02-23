@@ -147,13 +147,14 @@ export default function App() {
           open={userModalOpen}
           onClose={() => setUserModalOpen(false)}
           size='tiny'
+          style={{ backgroundColor: 'grey' }}
           centered
         >
           <Modal.Header>FINANCIFY</Modal.Header>
           <Modal.Content>
             <p style={{ color: 'greenyellow', backgroundColor: 'gray', padding: '5px', borderRadius: '4px', textAlign: 'center' }}>Hello, {user?.displayName}</p>
             <p style={{ color: 'yellow', backgroundColor: 'gray', padding: '5px', borderRadius: '4px' }}>
-              "Effortlessly track your spending and income – stay organized with every transaction, every time."</p>
+              "Effortlessly track your spending and income - stay organized with every transaction, every time."</p>
           </Modal.Content>
           <Modal.Actions>
             <Button onClick={() => setUserModalOpen(false)}>Close</Button>
