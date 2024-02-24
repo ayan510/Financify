@@ -6,7 +6,7 @@ import Home from './comp/Home';
 import Transactions from './comp/Transactions';
 import History from './comp/History';
 import { GoogleAuthProvider, onAuthStateChanged, onIdTokenChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { Button, Icon, Menu, Modal, Sidebar, Table, TableHeader, TableRow } from 'semantic-ui-react';
+import { Button, Card, Grid, Icon, Image, Menu, Modal, Sidebar, Table, TableHeader, TableRow } from 'semantic-ui-react';
 
 export const MyContext = createContext(null);
 
@@ -16,16 +16,15 @@ export default function App() {
   for (let pair of urlParams.entries()) {
     paramsObject[pair[0]] = pair[1];
   }
-
   if (Object.keys(paramsObject).length === 0) {
     paramsObject = { page: 'Home' };
   }
-
   const [params, setParams] = useState(paramsObject);
   const [user, setUser] = useState(null);
   const [logoutConfirmationOpen, setLogoutConfirmationOpen] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
+  const [darkTheme, setDarkTheme] = useState(false);
   const provider = new GoogleAuthProvider();
 
   useEffect(() => {
@@ -63,61 +62,64 @@ export default function App() {
         console.log(error.message);
       });
   }
+  const toggleDarkTheme = () => {
+    setDarkTheme(prevDarkTheme => !prevDarkTheme);
+  };
 
   return (
     <div style={{ marginTop: '20px', marginLeft: '20px' }}>
       <MyContext.Provider value={{ user, setUser, params, setParams }}>
-        <Sidebar.Pushable as='div'>
-          <Sidebar
-            as={Menu}
-            animation='overlay'
-            onHide={() => setSidebarVisible(false)}
-            vertical
-            visible={sidebarVisible}
-            width='thin'
-            style={{ backgroundColor: '#f5f5f5' }}
-          >
-            {user && (
+        {user ? (
+          <Sidebar.Pushable as='div'>
+            <Sidebar
+              as={Menu}
+              animation='overlay'
+              onHide={() => setSidebarVisible(false)}
+              vertical
+              visible={sidebarVisible}
+              width='thin'
+              style={{ backgroundColor: '#f5f5f5' }}
+            >
               <Menu.Item onClick={() => setUserModalOpen(true)}>
-                <Icon name='user' />
+                <Image src={user.photoURL} avatar />
+                <br></br>
+                <br></br>
                 {user.displayName}
               </Menu.Item>
-            )}
-            <Menu.Item onClick={() => { setParams({ page: 'Home' }); setSidebarVisible(false); }}>
-              <Icon name='home' />
-              Home
-            </Menu.Item>
-            <Menu.Item onClick={() => { setParams({ page: 'Transactions' }); setSidebarVisible(false); }}>
-              <Icon name='dollar' />
-              Transactions
-            </Menu.Item>
-            <Menu.Item onClick={() => { setParams({ page: 'History' }); setSidebarVisible(false); }}>
-              <Icon name='history' />
-              History
-            </Menu.Item>
-            {user && (
+              <Menu.Item onClick={() => { setParams({ page: 'Home' }); setSidebarVisible(false); }}>
+                <Icon name='home' />
+                Home
+              </Menu.Item>
+              <Menu.Item onClick={() => { setParams({ page: 'Transactions' }); setSidebarVisible(false); }}>
+                <Icon name='dollar' />
+                Transactions
+              </Menu.Item>
+              <Menu.Item onClick={() => { setParams({ page: 'History' }); setSidebarVisible(false); }}>
+                <Icon name='history' />
+                History
+              </Menu.Item>
               <Menu.Item onClick={() => { setLogoutConfirmationOpen(true); setSidebarVisible(false); }}>
                 <Icon name='sign-out' />
                 Logout
               </Menu.Item>
-            )}
-          </Sidebar>
+              <Menu.Item onClick={toggleDarkTheme}>
+                <Icon name={darkTheme ? 'sun' : 'moon'} />
+                {darkTheme ? 'Light Theme' : 'Dark Theme'}
+              </Menu.Item>
+            </Sidebar>
 
-          <Sidebar.Pusher>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <Button icon onClick={() => setSidebarVisible(true)}>
-                <Icon name='bars' />
-              </Button>
-              {user && (
+            <Sidebar.Pusher>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <Button icon onClick={() => setSidebarVisible(true)}>
+                  <Icon name='bars' />
+                </Button>
                 <Button className='logout' color='red' onClick={() => setLogoutConfirmationOpen(true)}><Icon name='sign-out' />
                   Logout
                 </Button>
-              )}
-            </div>
-            {user ? (
+              </div>
               <>
-                <>
-                  <Table celled className='ui celled unstackable table' textAlign='center' style={{ margin: '0 auto', }}>
+                <div className={darkTheme ? "dark" : "light"}>
+                  <Table celled className='ui celled unstackable table' textAlign='center' style={{ margin: '0 auto', padding: '4px' }}>
                     <TableHeader>
                       <TableRow>
                         <Button color='green' onClick={() => setParams({ page: 'Home' })}><Icon name='home' />Home</Button>
@@ -129,20 +131,31 @@ export default function App() {
                   {params.page === 'Home' && <Home />}
                   {params.page === 'Transactions' && <Transactions />}
                   {params.page === 'History' && <History />}
-                  <hr></hr>
-                  <hr></hr>
-                </>
+                  <hr />
+                </div>
               </>
-            ) : (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <Button color='green' onClick={doLogin}>
-                  <Icon name='google' />
-                  Login with Google
-                </Button>
-              </div>
-            )}
-          </Sidebar.Pusher>
-        </Sidebar.Pushable>
+            </Sidebar.Pusher>
+          </Sidebar.Pushable>
+        ) : (
+          <Grid centered style={{ marginTop: '50px' }}>
+            <Grid.Row>
+              <Card style={{ boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.2)', borderRadius: '10px' }}>
+                <Card.Content>
+                  <Card.Header style={{ color: '#333', marginBottom: '10px' }}>Welcome to Financify</Card.Header>
+                  <Card.Description style={{ color: '#555' }}>
+                    Effortlessly track your spending and income - stay organized with every transaction, every time.
+                  </Card.Description>
+                </Card.Content>
+              </Card>
+            </Grid.Row>
+            <Grid.Row>
+              <Button color='green' onClick={doLogin} style={{ marginTop: '20px', boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.2)' }}>
+                <Icon name='google' />
+                Login with Google
+              </Button>
+            </Grid.Row>
+          </Grid>
+        )}
         <Modal
           open={userModalOpen}
           onClose={() => setUserModalOpen(false)}
